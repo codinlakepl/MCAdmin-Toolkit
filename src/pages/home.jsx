@@ -7,7 +7,8 @@ import {
   Link,
   Toolbar,
   Block,
-  Button
+  Button,
+  f7
 } from 'framework7-react';
 import Framework7 from 'framework7/types';
 
@@ -29,7 +30,7 @@ const HomePage = () => (
     <Block strong>
       <p>Here is your blank Framework7 app. Let's see what we have here.</p>
 
-      <Button fill>Siema</Button>
+      <Button fill onClick={() => {f7.toast.show ({text: "Dupa"})}}>Siema</Button>
     </Block>
 
   </Page>
