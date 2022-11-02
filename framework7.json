@@ -1,0 +1,33 @@
+{
+  "cwd": "/home/ipyz/Dokumenty/MCAdmin-Toolkit/android-app",
+  "type": [
+    "cordova"
+  ],
+  "name": "MCAdmin-Toolkit",
+  "framework": "react",
+  "template": "blank",
+  "bundler": "vite",
+  "cssPreProcessor": "less",
+  "theming": {
+    "customColor": true,
+    "color": "#da4167",
+    "darkTheme": true,
+    "iconFonts": true,
+    "fillBars": true
+  },
+  "customBuild": false,
+  "pkg": "com.mcadmintoolkit.app",
+  "cordova": {
+    "folder": "cordova",
+    "platforms": [
+      "android",
+      "electron"
+    ],
+    "plugins": [
+      "cordova-plugin-statusbar",
+      "cordova-plugin-keyboard",
+      "cordova-plugin-splashscreen",
+      "cordova-plugin-file"
+    ]
+  }
+}
