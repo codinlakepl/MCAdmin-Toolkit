@@ -17,7 +17,7 @@ const MyApp = () => {
   // Framework7 Parameters
   const f7params = {
     name: 'MCAdmin-Toolkit', // App name
-      theme: 'auto', // Automatic theme detection
+      theme: 'aurora', // Automatic theme detection
 
 
       id: 'com.mcadmintoolkit.app', // App bundle ID
