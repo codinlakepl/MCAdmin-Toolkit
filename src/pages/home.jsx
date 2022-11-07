@@ -10,12 +10,24 @@ import {
   Button,
   f7,
   Popup,
-  Searchbar
+  Searchbar,
+  Icon
 } from 'framework7-react';
-import Framework7 from 'framework7/types';
-import { animate } from 'dom7';
 
-
+function ServerBlock (props) {
+  return (
+      <div className="serverBlock">
+          <div className="image">
+              <img src={props.image} />
+          </div>
+          <div className="paragraph">
+              <h4>{props.title}</h4>
+              <br />
+              {props.text}
+          </div>
+      </div>
+  );
+}
 
 const HomePage = () => {
   return (<Page name="home">
@@ -31,10 +43,13 @@ const HomePage = () => {
 </Toolbar>*/}
     {/* Page content */}
     <div className='searchBar'>
-    <Searchbar e backdrop={true} className='searchBar' disableButton={false}>
-      <Button className='addBtn'>abc</Button>
+    <Searchbar backdrop={true} className='searchBar' disableButton={false}>
+      <Button style={{marginLeft: 10}} className='addBtn'><Icon f7="plus"></Icon></Button>
     </Searchbar>
     </div>
+
+    <ServerBlock image="/static/walterWhite.jpg" title="test" text="loremIpsum" />
+
     <img src='/static/BackgroundThing.png' style={{width: "100%", position: "absolute", bottom: 0}} />
   </Page>)
 };

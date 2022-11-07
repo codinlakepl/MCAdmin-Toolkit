@@ -69,7 +69,7 @@
   overflow: hidden;
 }
 
-.searchbar-input-wrap > input {
+.searchBar input {
   background-color: transparent !important;
   border-bottom: #E5FCF5 solid 1px !important;
   border-radius: 0 0 0 10px !important;
@@ -80,4 +80,30 @@
   border-radius: 100%;
   width: 25px;
   height: 25px;
+}
+
+.serverBlock {
+  background-color: #FFC09F;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: row;
+  max-height: 150px;
+  overflow: hidden;
+  padding: 15px;
+}
+
+.serverBlock > .image {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
+  align-items: center;
+  max-width: 80px;
+  min-width: 80px;
+  max-height: 80px;
+  min-height: 80px;
+}
+
+.serverBlock > .image > img {
+  max-height: 100%;
 }
