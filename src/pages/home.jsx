@@ -37,7 +37,7 @@ function ServerBlock (props) {
       return;
     }
 
-    var body = JSON.parse (response.body);
+    var body = await response.json ();
 
     setText (<span>Server type: {body.serverType}<br />Players: {body.players}</span>);
     sessionKey = body.sessionKey;
