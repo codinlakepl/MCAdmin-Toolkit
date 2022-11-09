@@ -112,7 +112,10 @@ const HomePage = () => {
           <Input outline type='text' placeholder='Server Name' inputId="serverName" />
           <Input outline type='text' placeholder='Server Address' inputId="address" />
           <Input outline type='number' placeholder='MCAdmin-Toolkit-Connector Port' inputId="port" />
-          <Input outline type='text' placeholder='AuthKey' inputId="authkey" />
+          <div className='authKeySection'>
+            <Input outline type='text' placeholder='AuthKey' inputId="authkey" />
+            <Button className='downloadAuthKeyBtn'><Icon f7='arrow_down_to_line' /></Button>
+          </div>
           <div className='buttons'>
             <Button className='backBtn' onClick={() => {setLoginPopupOpened (false)}}><Icon f7='chevron_left' /><span>Back</span></Button>
             <Button className='loginBtn' onClick={() => {
