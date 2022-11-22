@@ -1,6 +1,7 @@
 const rollup = require('rollup');
 const fs = require('fs');
 const path = require('path');
+const fse = require ('fs-extra');
 
 const build = async () => {
   // rebuild JS without modules
@@ -40,6 +41,12 @@ const build = async () => {
     })
     .join('\n');
   fs.writeFileSync(indexPath, indexContent);
+
+  const staticPath = path.resolve (__dirname, '../src/static');
+
+  const wwwStaticPath = path.resolve (__dirname, '../cordova/www/static');
+
+  fse.copySync (staticPath, wwwStaticPath);
 };
 
 build();

@@ -28,6 +28,7 @@
     "framework7": "^7.0.8",
     "framework7-icons": "^5.0.5",
     "framework7-react": "^7.0.8",
+    "fs-extra": "^10.1.0",
     "material-icons": "^1.12.0",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
