@@ -14,8 +14,22 @@ import {
   Icon,
   Input,
   List,
-  ListItem
+  ListItem,
+  Preloader
 } from 'framework7-react';
+
+async function fetchWithTimeout(resource, options = {}) {
+  const { timeout = 8000 } = options;
+  
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  const response = await fetch(resource, {
+    ...options,
+    signal: controller.signal  
+  });
+  clearTimeout(id);
+  return response;
+}
 
 function ServerBlock (props) {
 
@@ -25,19 +39,31 @@ function ServerBlock (props) {
   const blocker = null;
 
   const [text, setText] = useState (props.text);
+  const [imgHolderContent, setImgContentHolder] = useState (1);
+  const [img, setImg] = useState ('/static/DefaultServerIcon.png');
+
+  const imgHolderRealContent = <img src={img} />;
 
   const loader = async () => {
-    console.log ("test123");
-    console.log (props.authkey);
-    var response = await fetch ("https://" + props.address + "/LOGIN", {method: 'POST', body: props.authkey});
-    if (response.status >= 400 && response.status < 600) {
+    try {
+      var response = await fetchWithTimeout ("https://" + props.address + "/LOGIN", {method: 'POST', body: props.authkey});
+      if (response.status >= 400 && response.status < 600) {
+        throw '';
+      }
+    } catch {
       setText ("error");
-      console.log (response.status);
-      console.log (props.address);
+      setImgContentHolder (3);
       return;
     }
 
     var body = await response.json ();
+
+    if (body.icon != "none") {
+      console.log (body.icon);
+      setImg ("data:image/png;base64," + body.icon);
+    }
+
+    setImgContentHolder (2);
 
     setText (<span>Server type: {body.serverType}<br />Players: {body.players}</span>);
     sessionKey = body.sessionKey;
@@ -49,7 +75,8 @@ function ServerBlock (props) {
   return (
       <div className="serverBlock">
           <div className="image">
-              <img src={props.image} />
+              <Preloader style={{display: imgHolderContent == 1 ? 'block' : 'none'}} size={42} />
+              <img style={{display: imgHolderContent == 2 ? 'block' : 'none', minWidth: '100%'}} src={img} />
           </div>
           <div className="paragraph">
               <h3>{props.title}</h3>
@@ -77,11 +104,15 @@ const HomePage = () => {
       let address = document.querySelector ('#address').value;
       let port = document.querySelector ('#port').value;
 
-      let result = await fetch ('https://' + address + ':' + port + '/GETAUTHKEY', {method: 'POST', body: code});
+      try {
+        let result = await fetchWithTimeout ('https://' + address + ':' + port + '/GETAUTHKEY', {method: 'POST', body: code});
 
-      if (!result.ok) {
+        if (!result.ok) {
+          throw '';
+        }
+      } catch {
         f7.dialog.close ();
-        f7.dialog.alert ("Error...", "Could not download authkey, please make sure you have entered correct address and port");
+        f7.dialog.alert ("Could not download authkey, please make sure you have entered correct address, port and download code", "Error...");
       }
 
       let authkey = await result.text ();
