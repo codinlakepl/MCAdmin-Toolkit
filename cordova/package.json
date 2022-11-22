@@ -25,7 +25,9 @@
       "cordova-plugin-statusbar": {},
       "cordova-plugin-keyboard": {},
       "cordova-plugin-splashscreen": {},
-      "cordova-plugin-file": {}
+      "cordova-plugin-file": {
+        "ANDROIDX_WEBKIT_VERSION": "1.4.0"
+      }
     },
     "platforms": [
       "android",

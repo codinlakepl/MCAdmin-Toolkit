@@ -70,6 +70,28 @@ const HomePage = () => {
 
   const blocker = null;
 
+  const handleDownloadBtn = () => {
+    f7.dialog.prompt ("Enter download code", async (code) => {
+      f7.dialog.preloader ("Downloading authkey...");
+
+      let address = document.querySelector ('#address').value;
+      let port = document.querySelector ('#port').value;
+
+      let result = await fetch ('https://' + address + ':' + port + '/GETAUTHKEY', {method: 'POST', body: code});
+
+      if (!result.ok) {
+        f7.dialog.close ();
+        f7.dialog.alert ("Error...", "Could not download authkey, please make sure you have entered correct address and port");
+      }
+
+      let authkey = await result.text ();
+
+      document.querySelector ('#authkey').value = authkey;
+
+      f7.dialog.close ();
+    });
+  }
+
   useEffect (() => {
     if (value != null) {
       let savedItems = JSON.parse (value);
@@ -114,7 +136,7 @@ const HomePage = () => {
           <Input outline type='number' placeholder='MCAdmin-Toolkit-Connector Port' inputId="port" />
           <div className='authKeySection'>
             <Input outline type='text' placeholder='AuthKey' inputId="authkey" />
-            <Button className='downloadAuthKeyBtn'><Icon f7='arrow_down_to_line' /></Button>
+            <Button className='downloadAuthKeyBtn' onClick={handleDownloadBtn}><Icon f7='arrow_down_to_line' /></Button>
           </div>
           <div className='buttons'>
             <Button className='backBtn' onClick={() => {setLoginPopupOpened (false)}}><Icon f7='chevron_left' /><span>Back</span></Button>
