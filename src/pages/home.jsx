@@ -104,8 +104,10 @@ const HomePage = () => {
       let address = document.querySelector ('#address').value;
       let port = document.querySelector ('#port').value;
 
+      let result;
+
       try {
-        let result = await fetchWithTimeout ('https://' + address + ':' + port + '/GETAUTHKEY', {method: 'POST', body: code});
+        result = await fetchWithTimeout ('https://' + address + ':' + port + '/GETAUTHKEY', {method: 'POST', body: code});
 
         if (!result.ok) {
           throw '';
