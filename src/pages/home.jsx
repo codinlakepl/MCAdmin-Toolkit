@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Page,
   Navbar,
@@ -41,6 +41,7 @@ function ServerBlock (props) {
   const [text, setText] = useState (props.text);
   const [imgHolderContent, setImgContentHolder] = useState (1);
   const [img, setImg] = useState ('/static/DefaultServerIcon.png');
+  const rootElem = useRef (null);
 
   const imgHolderRealContent = <img src={img} />;
 
@@ -53,10 +54,18 @@ function ServerBlock (props) {
     } catch {
       setText ("error");
       setImgContentHolder (3);
+      rootElem.current.addEventListener ('click', () => {
+        f7.dialog.alert ("Server is offline or auth key is wrong", "Error");
+      });
       return;
     }
 
     var body = await response.json ();
+
+    rootElem.current.addEventListener ('click', () => {
+      f7.view.main.router.navigate ({name: 'server', params: {serverName: props.title, serverType: body.serverType, serverAddress: props.address}});
+      console.log ("działa");
+    });
 
     if (body.icon != "none") {
       console.log (body.icon);
@@ -73,7 +82,7 @@ function ServerBlock (props) {
   useEffect (() => {loader ()}, [blocker]);
 
   return (
-      <div className="serverBlock">
+      <div className="serverBlock" ref={rootElem}>
           <div className="image">
               <Preloader style={{display: imgHolderContent == 1 ? 'block' : 'none'}} size={42} />
               <img style={{display: imgHolderContent == 2 ? 'block' : 'none', minWidth: '100%'}} src={img} />
