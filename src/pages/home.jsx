@@ -18,18 +18,7 @@ import {
   Preloader
 } from 'framework7-react';
 
-async function fetchWithTimeout(resource, options = {}) {
-  const { timeout = 8000 } = options;
-  
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
-  const response = await fetch(resource, {
-    ...options,
-    signal: controller.signal  
-  });
-  clearTimeout(id);
-  return response;
-}
+import { fetchWithTimeout } from '../components/fetchWithTimeout.module';
 
 function ServerBlock (props) {
 
@@ -63,7 +52,7 @@ function ServerBlock (props) {
     var body = await response.json ();
 
     rootElem.current.addEventListener ('click', () => {
-      f7.view.main.router.navigate ({name: 'server', params: {serverName: props.title, serverType: body.serverType, serverAddress: props.address}});
+      f7.view.main.router.navigate ({name: 'server', params: {serverName: props.title, serverType: body.serverType, serverAddress: props.address, sessionKey: body.sessionKey}});
       console.log ("działa");
     });
 

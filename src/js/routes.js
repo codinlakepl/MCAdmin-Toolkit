@@ -9,7 +9,7 @@ var routes = [
   },
   {
     name: 'server',
-    path: '/server/:serverName/:serverType/:serverAddress',
+    path: '/server/:serverName/:serverType/:serverAddress/:sessionKey',
     component: ServerPage
   }
 ];
