@@ -18,6 +18,7 @@ function ServerPlayer(props){
                 let result;
 
                 try {
+                    console.log (props);
                     result = await fetchWithTimeout ('https://' + props.serverAddress + '/KICK', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, uuid: props.playerUuid, reason: reason})});
                 } catch {
                     f7.dialog.close ();
@@ -40,7 +41,7 @@ function ServerPlayer(props){
     }, [effectBlocker]);
 
     return(
-        <div className="serverPlayer" style={props.isOffline ? {opacity: 0.85} : {}}>
+        <div className="serverPlayer" style={props.isOffline ? {backgroundColor: 'rgba(255, 192, 159, 0.5)'} : {}}>
             <div className="playerName">
                 {props.playerName}
             </div>
@@ -99,15 +100,16 @@ export default function (props) {
             setFetched (true);
             //se (<span>Cpu load: {json.cpuLoad}<br />Ram usage: {json.ramUsage}<br />Players online: {json.playersOnline}<br />Server type: {props.serverType}</span>);
             json.online.forEach(player => {
-                players.push (<ServerPlayer playerName={player.name} playerUuid={player.uuid} isOffline={false} />);
+                players.push (<ServerPlayer playerName={player.name} playerUuid={player.uuid} isOffline={false} serverAddress={props.serverAddress} sessionKey={props.sessionKey} />);
             });
 
             json.offline.forEach(player => {
-                players.push (<ServerPlayer playerName={player} isOffline={true} />);
+                players.push (<ServerPlayer playerName={player} isOffline={true} serverAddress={props.serverAddress} sessionKey={props.sessionKey} />);
             });
 
-            setServerPlayers ([...players]);
             if (!fetched) f7.dialog.close ();
+
+            setServerPlayers ([...players]);
             setTimeout (() => {setFectherClock (!fetcherClock)}, 2000);
         }
 
