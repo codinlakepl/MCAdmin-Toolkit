@@ -19,7 +19,7 @@ function ServerPlayer(props){
 
                 try {
                     console.log (props);
-                    result = await fetchWithTimeout ('https://' + props.serverAddress + '/KICK', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, uuid: props.playerUuid, reason: reason})});
+                    result = await fetchWithTimeout ('https://' + props.serverAddress + '/KICK', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, name: props.playerName, reason: reason})});
                 } catch {
                     f7.dialog.close ();
                     f7.dialog.alert ("Can't connnect to server", "Something went wrong...");
@@ -36,6 +36,69 @@ function ServerPlayer(props){
 
                 f7.dialog.close ();
                 f7.dialog.alert ("Player successfully kicked", "Success...");
+            });
+        });
+
+        banBtn.current.addEventListener ('click', () => {
+            f7.dialog.prompt ("Are you sure, you want to ban player " + props.playerName + "?\nReason:", "Ban player...", (reason) => {
+                f7.dialog.prompt ("For how long, you want to ban this player (in hours)?", "Ban player...", async (hours) => {
+                    if (isNaN (hours)) {
+                        f7.dialog.alert ("You have to enter a number!", "Something went wrong...");
+                        return;
+                    }
+
+                    f7.dialog.preloader ("Banning player...");
+
+                    let result;
+
+                    try {
+                        result = await fetchWithTimeout ("https://" + props.serverAddress + "/BAN", {method: 'POST', body: JSON.stringify({username: props.playerName, sessionKey: props.sessionKey, reason: reason, hours: hours})});
+                    } catch {
+                        f7.dialog.close ();
+                        f7.dialog.alert ("Can't connect to server", "Something went wrong...");
+                        return;
+                    }
+
+                    let text = await result.text ();
+
+                    if (text != "Success") {
+                        f7.dialog.close ();
+                        f7.dialog.alert ("Your session has expired or you don't have enough permissions", "Something went wrong...");
+                        return;
+                    }
+
+                    f7.dialog.close ();
+                    f7.dialog.alert ("Player successfully banned for " + hours + " hour(s)", "Success...");
+                }, (hours) => {
+                    f7.dialog.alert ("You cancelled ban procedure", "Something went wrong...");
+                });
+            });
+        });
+
+        banIpBtn.current.addEventListener ('click', () => {
+            f7.dialog.prompt ("Are you sure, you want to ban ip of player " + props.playerName + "?\nReason:", "Ban player's ip...", async (reason) => {
+                f7.dialog.preloader ("Banning player's ip");
+
+                let result;
+
+                try {
+                    result = await fetchWithTimeout ("https://" + props.serverAddress + "/BANIP", {method: 'POST', body: JSON.stringify ({name: props.playerName, sessionKey: props.sessionKey, reason: reason})});
+                } catch {
+                    f7.dialog.close ();
+                    f7.dialog.alert ("Can't connect to server", "Something went wrong...");
+                    return;
+                }
+
+                let text = await result.text ();
+
+                if (text != 'Success') {
+                    f7.dialog.close ();
+                    f7.dialog.alert ("Your session has expired or you don't have enough permissions", "Something went wrong...");
+                    return;
+                }
+
+                f7.dialog.close ();
+                f7.dialog.alert ("Player's ip successfully banned", "Success...");
             });
         });
     }, [effectBlocker]);
