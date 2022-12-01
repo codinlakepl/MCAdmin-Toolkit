@@ -10,14 +10,19 @@ function ServerPlayer(props){
 
     useEffect (() => {
         pardonBtn.current.addEventListener ('click', () => {
-            f7.dialog.prompt ("Are you sure, you want to unban player " + props.playerName + "?", "Unbanning player...", async () => {
-                f7.dialog.preloader ("Kicking player...");
+            f7.dialog.confirm ("Are you sure, you want to unban player " + props.playerName + "?", "Unbanning player...", async () => {
+                f7.dialog.preloader ("Unbanning player...");
 
                 let result;
 
                 try {
                     console.log (props);
-                    result = await fetchWithTimeout ('https://' + props.serverAddress + '/UNBAN', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, name: props.playerName, reason: reason})});
+                    //result = await fetchWithTimeout ('https://' + props.serverAddress + '/UNBAN', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, name: props.playerName, reason: reason})});
+                    if (props.isBanIp) {
+                        result = await fetchWithTimeout ('https://' + props.serverAddress + '/UNBANIP', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, ip: props.playerName})});
+                    } else {
+                        result = await fetchWithTimeout ('https://' + props.serverAddress + '/UNBAN', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, username: props.playerName})});
+                    }
                 } catch {
                     f7.dialog.close ();
                     f7.dialog.alert ("Can't connnect to server", "Something went wrong...");
@@ -33,20 +38,20 @@ function ServerPlayer(props){
                 }
 
                 f7.dialog.close ();
-                f7.dialog.alert ("Player successfully kicked", "Success...");
+                f7.dialog.alert ("Player successfully unbanned", "Success...");
             });
         });
     }, [effectBlocker]);
 
     return(
-        <div className="serverPlayer" style={props.isOffline ? {backgroundColor: 'rgba(255, 192, 159, 0.5)'} : {}}>
+        <div className="serverPlayer">
             <div className="playerName">
+                <span style={{color: 'red', display: props.isBanIp ? 'inline-block' : 'none'}}><b>(IP)</b></span>
                 {props.playerName}
             </div>
             <div className="buttonsWrapper">
                 <div className="actionButton" ref={pardonBtn}>
                     <Icon material="undo" />
-                    {props.isBanIp ? <span style={{color: 'red'}}>(IP)</span> : {}}
                 </div>
             </div>
         </div>
@@ -93,7 +98,7 @@ export default function (props) {
             setFetched (true);
             //se (<span>Cpu load: {json.cpuLoad}<br />Ram usage: {json.ramUsage}<br />Players online: {json.playersOnline}<br />Server type: {props.serverType}</span>);
             json.normalBans.forEach(player => {
-                players.push (<ServerPlayer playerName={player.name} playerUuid={player.uuid} isBanIp={false} serverAddress={props.serverAddress} sessionKey={props.sessionKey} />);
+                players.push (<ServerPlayer playerName={player} isBanIp={false} serverAddress={props.serverAddress} sessionKey={props.sessionKey} />);
             });
 
             json.ipBans.forEach(player => {

@@ -56,7 +56,7 @@ export default function (props) {
         });
 
         banManagementBtn.current.addEventListener ('click', () => {
-            f7.view.main.router.navigate ({name: 'playerManagement', params: {serverName: props.serverName, serverAddress: props.serverAddress, sessionKey: props.sessionKey}});
+            f7.view.main.router.navigate ({name: 'banManagement', params: {serverName: props.serverName, serverAddress: props.serverAddress, sessionKey: props.sessionKey}});
         });
     }, [effectBlocker]);
 
