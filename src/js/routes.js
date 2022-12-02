@@ -3,6 +3,7 @@ import HomePage from '../pages/home.jsx';
 import ServerPage from '../pages/server.jsx';
 import PlayerManagement from '../pages/playerManagement.jsx';
 import BanManagement from '../pages/banManagement.jsx';
+import WhitelistManagement from '../pages/whitelistManagement.jsx';
 
 var routes = [
   {
@@ -23,6 +24,11 @@ var routes = [
     name: 'banManagement',
     path: '/banManagement/:serverName/:serverAddress/:sessionKey',
     component: BanManagement
+  },
+  {
+    name: 'whitelistManagement',
+    path: '/whitelistManagement/:serverName/:serverAddress/:sessionKey',
+    component: WhitelistManagement
   }
 ];
 
