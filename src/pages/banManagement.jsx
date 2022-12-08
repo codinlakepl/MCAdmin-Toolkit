@@ -4,44 +4,38 @@ import { fetchWithTimeout } from "../components/fetchWithTimeout.module";
 
 function ServerPlayer(props){
 
-    const pardonBtn = useRef (null);
+    const pardonHandler = () => {
+        f7.dialog.confirm ("Are you sure, you want to unban player " + props.playerName + "?", "Unbanning player...", async () => {
+            f7.dialog.preloader ("Unbanning player...");
 
-    const effectBlocker = false;
+            let result;
 
-    useEffect (() => {
-        pardonBtn.current.addEventListener ('click', () => {
-            f7.dialog.confirm ("Are you sure, you want to unban player " + props.playerName + "?", "Unbanning player...", async () => {
-                f7.dialog.preloader ("Unbanning player...");
-
-                let result;
-
-                try {
-                    console.log (props);
-                    //result = await fetchWithTimeout ('https://' + props.serverAddress + '/UNBAN', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, name: props.playerName, reason: reason})});
-                    if (props.isBanIp) {
-                        result = await fetchWithTimeout ('https://' + props.serverAddress + '/UNBANIP', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, ip: props.playerName})});
-                    } else {
-                        result = await fetchWithTimeout ('https://' + props.serverAddress + '/UNBAN', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, username: props.playerName})});
-                    }
-                } catch {
-                    f7.dialog.close ();
-                    f7.dialog.alert ("Can't connnect to server", "Something went wrong...");
-                    return;
+            try {
+                console.log (props);
+                //result = await fetchWithTimeout ('https://' + props.serverAddress + '/UNBAN', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, name: props.playerName, reason: reason})});
+                if (props.isBanIp) {
+                    result = await fetchWithTimeout ('https://' + props.serverAddress + '/UNBANIP', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, ip: props.playerName})});
+                } else {
+                    result = await fetchWithTimeout ('https://' + props.serverAddress + '/UNBAN', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, username: props.playerName})});
                 }
-
-                let text = await result.text ();
-
-                if (text != 'Success') {
-                    f7.dialog.close ();
-                    f7.dialog.alert ("Your session has expired or you don't have enough permissions", "Something went wrong...");
-                    return;
-                }
-
+            } catch {
                 f7.dialog.close ();
-                f7.dialog.alert ("Player successfully unbanned", "Success...");
-            });
+                f7.dialog.alert ("Can't connnect to server", "Something went wrong...");
+                return;
+            }
+
+            let text = await result.text ();
+
+            if (text != 'Success') {
+                f7.dialog.close ();
+                f7.dialog.alert ("Your session has expired or you don't have enough permissions", "Something went wrong...");
+                return;
+            }
+
+            f7.dialog.close ();
+            f7.dialog.alert ("Player successfully unbanned", "Success...");
         });
-    }, [effectBlocker]);
+    };
 
     return(
         <div className="serverPlayer">
@@ -50,7 +44,7 @@ function ServerPlayer(props){
                 {props.playerName}
             </div>
             <div className="buttonsWrapper">
-                <div className="actionButton" ref={pardonBtn}>
+                <div className="actionButton" onClick={pardonHandler}>
                     <Icon material="undo" />
                 </div>
             </div>

@@ -4,85 +4,48 @@ import { fetchWithTimeout } from "../components/fetchWithTimeout.module";
 
 function ServerPlayer(props){
 
-    const kickBtn = useRef (null);
-    const banBtn = useRef (null);
-    const banIpBtn = useRef (null);
+    const kickHandler = () => {
+        f7.dialog.prompt ("Are you sure, you want to kick player " + props.playerName + "?\n Reason:", "Kick player...", async (reason) => {
+            f7.dialog.preloader ("Kicking player...");
 
-    const effectBlocker = false;
+            let result;
 
-    useEffect (() => {
-        kickBtn.current.addEventListener ('click', () => {
-            f7.dialog.prompt ("Are you sure, you want to kick player " + props.playerName + "?\n Reason:", "Kick player...", async (reason) => {
-                f7.dialog.preloader ("Kicking player...");
-
-                let result;
-
-                try {
-                    console.log (props);
-                    result = await fetchWithTimeout ('https://' + props.serverAddress + '/KICK', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, name: props.playerName, reason: reason})});
-                } catch {
-                    f7.dialog.close ();
-                    f7.dialog.alert ("Can't connnect to server", "Something went wrong...");
-                    return;
-                }
-
-                let text = await result.text ();
-
-                if (text != 'Success') {
-                    f7.dialog.close ();
-                    f7.dialog.alert ("Your session has expired or you don't have enough permissions", "Something went wrong...");
-                    return;
-                }
-
+            try {
+                console.log (props);
+                result = await fetchWithTimeout ('https://' + props.serverAddress + '/KICK', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, name: props.playerName, reason: reason})});
+            } catch {
                 f7.dialog.close ();
-                f7.dialog.alert ("Player successfully kicked", "Success...");
-            });
+                f7.dialog.alert ("Can't connnect to server", "Something went wrong...");
+                return;
+            }
+
+            let text = await result.text ();
+
+            if (text != 'Success') {
+                f7.dialog.close ();
+                f7.dialog.alert ("Your session has expired or you don't have enough permissions", "Something went wrong...");
+                return;
+            }
+
+            f7.dialog.close ();
+            f7.dialog.alert ("Player successfully kicked", "Success...");
         });
+    };
 
-        banBtn.current.addEventListener ('click', () => {
-            f7.dialog.prompt ("Are you sure, you want to ban player " + props.playerName + "?\nReason:", "Ban player...", (reason) => {
-                f7.dialog.prompt ("For how long, you want to ban this player (in hours)?", "Ban player...", async (hours) => {
-                    if (isNaN (hours)) {
-                        f7.dialog.alert ("You have to enter a number!", "Something went wrong...");
-                        return;
-                    }
+    const banHandler = () => {
+        f7.dialog.prompt ("Are you sure, you want to ban player " + props.playerName + "?\nReason:", "Ban player...", (reason) => {
+            f7.dialog.prompt ("For how long, you want to ban this player (in hours)?", "Ban player...", async (hours) => {
+                if (isNaN (hours)) {
+                    f7.dialog.alert ("You have to enter a number!", "Something went wrong...");
+                    return;
+                }
 
-                    f7.dialog.preloader ("Banning player...");
-
-                    let result;
-
-                    try {
-                        result = await fetchWithTimeout ("https://" + props.serverAddress + "/BAN", {method: 'POST', body: JSON.stringify({username: props.playerName, sessionKey: props.sessionKey, reason: reason, hours: hours})});
-                    } catch {
-                        f7.dialog.close ();
-                        f7.dialog.alert ("Can't connect to server", "Something went wrong...");
-                        return;
-                    }
-
-                    let text = await result.text ();
-
-                    if (text != "Success") {
-                        f7.dialog.close ();
-                        f7.dialog.alert ("Your session has expired or you don't have enough permissions", "Something went wrong...");
-                        return;
-                    }
-
-                    f7.dialog.close ();
-                    f7.dialog.alert ("Player successfully banned for " + hours + " hour(s)", "Success...");
-                }, (hours) => {
-                    f7.dialog.alert ("You cancelled ban procedure", "Something went wrong...");
-                });
-            });
-        });
-
-        banIpBtn.current.addEventListener ('click', () => {
-            f7.dialog.prompt ("Are you sure, you want to ban ip of player " + props.playerName + "?\nReason:", "Ban player's ip...", async (reason) => {
-                f7.dialog.preloader ("Banning player's ip");
+                f7.dialog.preloader ("Banning player...");
 
                 let result;
 
                 try {
-                    result = await fetchWithTimeout ("https://" + props.serverAddress + "/BANIP", {method: 'POST', body: JSON.stringify ({name: props.playerName, sessionKey: props.sessionKey, reason: reason})});
+                    result = await fetchWithTimeout ("https://" + props.serverAddress + "/BAN", {method: 'POST', body: JSON.stringify({username: props.playerName, sessionKey: props.sessionKey, reason: reason, hours: hours})});
                 } catch {
                     f7.dialog.close ();
                     f7.dialog.alert ("Can't connect to server", "Something went wrong...");
@@ -91,17 +54,46 @@ function ServerPlayer(props){
 
                 let text = await result.text ();
 
-                if (text != 'Success') {
+                if (text != "Success") {
                     f7.dialog.close ();
                     f7.dialog.alert ("Your session has expired or you don't have enough permissions", "Something went wrong...");
                     return;
                 }
 
                 f7.dialog.close ();
-                f7.dialog.alert ("Player's ip successfully banned", "Success...");
+                f7.dialog.alert ("Player successfully banned for " + hours + " hour(s)", "Success...");
+            }, (hours) => {
+                f7.dialog.alert ("You cancelled ban procedure", "Something went wrong...");
             });
         });
-    }, [effectBlocker]);
+    };
+
+    const banIpHandler = () => {
+        f7.dialog.prompt ("Are you sure, you want to ban ip of player " + props.playerName + "?\nReason:", "Ban player's ip...", async (reason) => {
+            f7.dialog.preloader ("Banning player's ip");
+
+            let result;
+
+            try {
+                result = await fetchWithTimeout ("https://" + props.serverAddress + "/BANIP", {method: 'POST', body: JSON.stringify ({name: props.playerName, sessionKey: props.sessionKey, reason: reason})});
+            } catch {
+                f7.dialog.close ();
+                f7.dialog.alert ("Can't connect to server", "Something went wrong...");
+                return;
+            }
+
+            let text = await result.text ();
+
+            if (text != 'Success') {
+                f7.dialog.close ();
+                f7.dialog.alert ("Your session has expired or you don't have enough permissions", "Something went wrong...");
+                return;
+            }
+
+            f7.dialog.close ();
+            f7.dialog.alert ("Player's ip successfully banned", "Success...");
+        });
+    };
 
     return(
         <div className="serverPlayer" style={props.isOffline ? {backgroundColor: 'rgba(255, 192, 159, 0.5)'} : {}}>
@@ -109,13 +101,13 @@ function ServerPlayer(props){
                 {props.playerName}
             </div>
             <div className="buttonsWrapper">
-                <div className="actionButton" ref={kickBtn} style={props.isOffline ? {display: 'none'} : {}}>
+                <div className="actionButton" onClick={kickHandler} style={props.isOffline ? {display: 'none'} : {}}>
                     <Icon material="person_remove" />
                 </div>
-                <div className="actionButton" ref={banBtn}>
+                <div className="actionButton" onClick={banHandler}>
                     <Icon material="gavel" />
                 </div>
-                <div className="actionButton" ref={banIpBtn} style={props.isOffline ? {display: 'none'} : {}}>
+                <div className="actionButton" onClick={banIpHandler} style={props.isOffline ? {display: 'none'} : {}}>
                     <Icon material="gavel" color="red"/>
                 </div>
             </div>

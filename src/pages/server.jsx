@@ -58,6 +58,9 @@ export default function (props) {
         banManagementBtn.current.addEventListener ('click', () => {
             f7.view.main.router.navigate ({name: 'banManagement', params: {serverName: props.serverName, serverAddress: props.serverAddress, sessionKey: props.sessionKey}});
         });
+        whitelistManagementBtn.current.addEventListener ('click', () => {
+            f7.view.main.router.navigate ({name: 'whitelistManagement', params: {serverName: props.serverName, serverAddress: props.serverAddress, sessionKey: props.sessionKey}});
+        });
     }, [effectBlocker]);
 
     return (

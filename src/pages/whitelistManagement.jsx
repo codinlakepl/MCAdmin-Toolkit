@@ -1,43 +1,44 @@
-import { f7, Icon, Navbar, Page } from "framework7-react";
+import { Checkbox, f7, Icon, Navbar, Page } from "framework7-react";
 import React, { useEffect, useRef, useState } from "react";
 import { fetchWithTimeout } from "../components/fetchWithTimeout.module";
 
 function ServerPlayer(props){
 
-    const removeBtn = useRef (null);
+    //const removeBtn = useRef (null);
 
-    const effectBlocker = false;
+    //const effectBlocker = false;
 
-    useEffect (() => {
-        removeBtn.current.addEventListener ('click', () => {
-            f7.dialog.confirm ("Are you sure, you want to remove player " + props.playerName + " from whitelist?", "Removing player from whitelist...", async () => {
-                f7.dialog.preloader ("Removing player from whitelist...");
+    //useEffect (() => {
+    const clickHandler = () => {
+        f7.dialog.confirm ("Are you sure, you want to remove player " + props.playerName + " from whitelist?", "Removing player from whitelist...", async () => {
+            f7.dialog.preloader ("Removing player from whitelist...");
 
-                let result;
+            let result;
 
-                try {
-                    console.log (props);
-                    //result = await fetchWithTimeout ('https://' + props.serverAddress + '/UNBAN', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, name: props.playerName, reason: reason})});
-                    result = await fetchWithTimeout ('https://' + props.serverAddress + '/WHITEREMOVE', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, username: props.playerName})});
-                } catch {
-                    f7.dialog.close ();
-                    f7.dialog.alert ("Can't connnect to server", "Something went wrong...");
-                    return;
-                }
-
-                let text = await result.text ();
-
-                if (text != 'Success') {
-                    f7.dialog.close ();
-                    f7.dialog.alert ("Your session has expired or you don't have enough permissions", "Something went wrong...");
-                    return;
-                }
-
+            try {
+                console.log (props);
+                //result = await fetchWithTimeout ('https://' + props.serverAddress + '/UNBAN', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, name: props.playerName, reason: reason})});
+                result = await fetchWithTimeout ('https://' + props.serverAddress + '/WHITEREMOVE', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, username: props.playerName})});
+                console.log (props.playerName);
+            } catch {
                 f7.dialog.close ();
-                f7.dialog.alert ("Player successfully unbanned", "Success...");
-            });
+                f7.dialog.alert ("Can't connnect to server", "Something went wrong...");
+                return;
+            }
+
+            let text = await result.text ();
+
+            if (text != 'Success') {
+                f7.dialog.close ();
+                f7.dialog.alert ("Your session has expired or you don't have enough permissions", "Something went wrong...");
+                return;
+            }
+
+            f7.dialog.close ();
+            f7.dialog.alert ("Player successfully removed from whitelist", "Success...");
         });
-    }, [effectBlocker]);
+    };
+    //}, [effectBlocker]);
 
     return(
         <div className="serverPlayer">
@@ -45,7 +46,7 @@ function ServerPlayer(props){
                 {props.playerName}
             </div>
             <div className="buttonsWrapper">
-                <div className="actionButton" ref={removeBtn}>
+                <div className="actionButton" onClick={clickHandler}>
                     <Icon material="delete" />
                 </div>
             </div>
@@ -62,18 +63,20 @@ export default function (props) {
     const [fetcherClock, setFectherClock] = useState (false);
     const [fetched, setFetched] = useState (false);
 
+    const [isEnabled, setIsEnabled] = useState (false);
+
     useEffect (() => {
 
         const loader = async () => {
             if (!fetched) {
-                f7.dialog.preloader ("Fetching bans...");
+                f7.dialog.preloader ("Fetching whitelist...");
             }
     
             let response;
             let json;
     
             try {
-                response = await fetchWithTimeout ('https://' + props.serverAddress + '/BANLIST', {method: 'POST', body: sessionKey});
+                response = await fetchWithTimeout ('https://' + props.serverAddress + '/WHITELIST', {method: 'POST', body: sessionKey});
             } catch {
                 if (!fetched) f7.dialog.close ();
                 f7.dialog.alert ("Something went wrong", "Error...", () => {f7.view.main.router.back ()});
@@ -96,6 +99,8 @@ export default function (props) {
                 players.push (<ServerPlayer playerName={player} serverAddress={props.serverAddress} sessionKey={props.sessionKey} />);
             });
 
+            setIsEnabled (json.isEnabled);
+
             if (!fetched) f7.dialog.close ();
 
             setServerPlayers ([...players]);
@@ -107,7 +112,66 @@ export default function (props) {
 
     return (
         <Page name="playerManagement">
-            <Navbar title={'(Bans Management) ' + serverName} backLink="Back" />
+            <Navbar title={'(Whitelist Management) ' + serverName} backLink="Back" />
+            <div className="whitelistEnabler">
+                Whitelist state: <span><Checkbox checked={isEnabled} onChange={async (e) => {
+                    if (e.target.checked) {
+                        f7.dialog.preloader ("Enabling whitelist...");
+
+                        let result;
+
+                        try {
+                            result = await fetchWithTimeout ("https://" + props.serverAddress + "/WHITEON", {method: 'POST', body: props.sessionKey});
+                        } catch {
+                            f7.dialog.close ();
+                            f7.dialog.alert ("Can't connnect to server", "Something went wrong...");
+                            setIsEnabled (false);
+                            return;
+                        }
+        
+                        let text = await result.text ();
+        
+                        if (text != 'Success') {
+                            f7.dialog.close ();
+                            f7.dialog.alert ("Your session has expired or you don't have enough permissions", "Something went wrong...");
+                            setIsEnabled (false);
+                            return;
+                        }
+
+                        setIsEnabled (true);
+        
+                        f7.dialog.close ();
+                        f7.dialog.alert ("Whitelist successfully enabled", "Success...");
+                        return;
+                    }
+                    f7.dialog.preloader ("Disabling whitelist...");
+
+                    let result;
+
+                    try {
+                        result = await fetchWithTimeout ("https://" + props.serverAddress + "/WHITEOFF", {method: 'POST', body: props.sessionKey});
+                    } catch {
+                        f7.dialog.close ();
+                        f7.dialog.alert ("Can't connnect to server", "Something went wrong...");
+                        setIsEnabled (true);
+                        return;
+                    }
+    
+                    let text = await result.text ();
+    
+                    if (text != 'Success') {
+                        f7.dialog.close ();
+                        f7.dialog.alert ("Your session has expired or you don't have enough permissions", "Something went wrong...");
+                        setIsEnabled (true);
+                        return;
+                    }
+
+                    setIsEnabled (false);
+    
+                    f7.dialog.close ();
+                    f7.dialog.alert ("Whitelist successfully disabled", "Success...");
+                }}></Checkbox></span>
+            </div>
 
             <div className="playersWrapper">
                 {serverPlayers}
