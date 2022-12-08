@@ -1,4 +1,4 @@
-import { Checkbox, f7, Icon, Navbar, Page } from "framework7-react";
+import { Button, Checkbox, f7, Icon, Navbar, Page } from "framework7-react";
 import React, { useEffect, useRef, useState } from "react";
 import { fetchWithTimeout } from "../components/fetchWithTimeout.module";
 
@@ -110,11 +110,39 @@ export default function (props) {
         loader ();
     }, [fetcherClock]);
 
+    const addHandler = () => {
+        f7.dialog.prompt ("Nick: ", "Add player to whitelist...", async (player) => {
+            f7.dialog.preloader ("Adding player to whitelist...");
+
+            let result;
+
+            try {
+                console.log (props);
+                result = await fetchWithTimeout ('https://' + props.serverAddress + '/WHITEADD', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, username: player})});
+            } catch {
+                f7.dialog.close ();
+                f7.dialog.alert ("Can't connnect to server", "Something went wrong...");
+                return;
+            }
+
+            let text = await result.text ();
+
+            if (text != 'Success') {
+                f7.dialog.close ();
+                f7.dialog.alert ("Your session has expired or you don't have enough permissions", "Something went wrong...");
+                return;
+            }
+
+            f7.dialog.close ();
+            f7.dialog.alert ("Player successfully added to whitelist", "Success...");
+        });
+    }
+
     return (
         <Page name="playerManagement">
             <Navbar title={'(Whitelist Management) ' + serverName} backLink="Back" />
             <div className="whitelistEnabler">
-                Whitelist state: <span><Checkbox checked={isEnabled} onChange={async (e) => {
+                <span>Whitelist state: <span><Checkbox checked={isEnabled} onChange={async (e) => {
                     if (e.target.checked) {
                         f7.dialog.preloader ("Enabling whitelist...");
 
@@ -170,7 +198,12 @@ export default function (props) {
     
                     f7.dialog.close ();
                     f7.dialog.alert ("Whitelist successfully disabled", "Success...");
-                }}></Checkbox></span>
+                }}></Checkbox></span></span>
+                <span>
+                    <Button className="addBtn" onClick={addHandler}>
+                        <Icon f7="plus" />
+                    </Button>
+                </span>
             </div>
 
             <div className="playersWrapper">
