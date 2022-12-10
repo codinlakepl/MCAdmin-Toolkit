@@ -149,7 +149,13 @@ const HomePage = () => {
     }
   }, [reloadClock]);
 
-  return (<Page name="home" onPageAfterIn={() => {
+  useEffect (() => {
+    console.log ((window.innerHeight - document.querySelector ('.servers').getBoundingClientRect ().top) + 'px');
+    document.querySelector ('.servers').style.height = (window.innerHeight - document.querySelector ('.servers').getBoundingClientRect ().top) + 'px';
+    //console.log ((window.innerHeight - document.querySelector ('.servers').offsetHeight) + 'px');
+  }, [blocker]);
+
+  return (<Page name="home" style={{overflow: 'hidden', maxHeight: '100vh'}} onPageAfterIn={() => {
     if (!firstLoaded) return;
     setReloadClock2 (!reloadClock2);
   }}>
@@ -169,6 +175,8 @@ const HomePage = () => {
       <Button style={{marginLeft: 10}} className='addBtn' onClick={() => {setLoginPopupOpened(true)}}><Icon f7="plus"></Icon></Button>
     </Searchbar>
     </div>
+
+    <Button className='reloadBtn' onClick={() => {setReloadClock2 (!reloadClock2)}}><Icon f7='arrow_2_circlepath' /> Reload</Button>
 
     <List className='servers'>
       {items}
