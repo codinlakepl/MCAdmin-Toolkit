@@ -35,6 +35,9 @@ function ServerBlock (props) {
   const imgHolderRealContent = <img src={img} />;
 
   const loader = async () => {
+
+    console.log ('test czy drugi effect działa');
+
     try {
       var response = await fetchWithTimeout ("https://" + props.address + "/LOGIN", {method: 'POST', body: props.authkey});
       if (response.status >= 400 && response.status < 600) {
@@ -57,7 +60,6 @@ function ServerBlock (props) {
     });
 
     if (body.icon != "none") {
-      console.log (body.icon);
       setImg ("data:image/png;base64," + body.icon);
     }
 
@@ -123,6 +125,17 @@ const HomePage = () => {
     });
   }
 
+  const [reloadClock, setReloadClock] = useState (false);
+  const [firstLoaded, setFirstLoaded] = useState (false);
+  const [reloadClock2, setReloadClock2] = useState (false);
+
+  useEffect (() => {
+    if (!firstLoaded) return;
+
+    setItems (<span></span>);
+    setReloadClock (!reloadClock);
+  }, [reloadClock2]);
+
   useEffect (() => {
     if (value != null) {
       let savedItems = JSON.parse (value);
@@ -132,10 +145,14 @@ const HomePage = () => {
       });
   
       setItems ([...toDisplayItems]);
+      setFirstLoaded (true);
     }
-  }, [blocker]);
+  }, [reloadClock]);
 
-  return (<Page name="home">
+  return (<Page name="home" onPageAfterIn={() => {
+    if (!firstLoaded) return;
+    setReloadClock2 (!reloadClock2);
+  }}>
     {/* Top Navbar */}
     {/*<Navbar large>
       <NavTitle>MCAdmin-Toolkit</NavTitle>
