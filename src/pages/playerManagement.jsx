@@ -12,7 +12,7 @@ function ServerPlayer(props){
 
             try {
                 console.log (props);
-                result = await fetchWithTimeout ('https://' + props.serverAddress + '/KICK', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, name: props.playerName, reason: reason})});
+                result = await fetchWithTimeout ('https://' + props.serverAddress + '/KICK', {method: 'POST', body: JSON.stringify({sessionKey: props.sessionKey, username: props.playerName, reason: reason})});
             } catch {
                 f7.dialog.close ();
                 f7.dialog.alert ("Can't connnect to server", "Something went wrong...");
@@ -75,7 +75,7 @@ function ServerPlayer(props){
             let result;
 
             try {
-                result = await fetchWithTimeout ("https://" + props.serverAddress + "/BANIP", {method: 'POST', body: JSON.stringify ({name: props.playerName, sessionKey: props.sessionKey, reason: reason})});
+                result = await fetchWithTimeout ("https://" + props.serverAddress + "/BANIP", {method: 'POST', body: JSON.stringify ({username: props.playerName, sessionKey: props.sessionKey, reason: reason})});
             } catch {
                 f7.dialog.close ();
                 f7.dialog.alert ("Can't connect to server", "Something went wrong...");
