@@ -113,11 +113,19 @@
   width: 100%;
 }
 
+.serverInfo {
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  gap: 20px;
+  width: 100%;
+}
+
 .serverBlock:hover {
   opacity: 0.7;
 }
 
-.serverBlock > .image {
+.serverInfo > .image {
   overflow: hidden;
   display: flex;
   flex-direction: row;
@@ -131,16 +139,16 @@
   filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
 }
 
-.serverBlock > .image > img {
+.serverInfo > .image > img {
   max-height: 100%;
 }
 
-.serverBlock >.paragraph {
+.serverInfo >.paragraph {
   width: 100%;
   text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 }
 
-.serverBlock >.paragraph > h3 {
+.serverInfo >.paragraph > h3 {
   margin: 0;
 }
 

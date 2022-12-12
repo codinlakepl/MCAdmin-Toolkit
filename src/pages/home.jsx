@@ -31,28 +31,34 @@ function ServerBlock (props) {
   const [imgHolderContent, setImgContentHolder] = useState (1);
   const [img, setImg] = useState ('/static/DefaultServerIcon.png');
   const rootElem = useRef (null);
-
-  const imgHolderRealContent = <img src={img} />;
+  const removeBtn = useRef (null);
 
   const loader = async () => {
 
     console.log ('test czy drugi effect działa');
 
+    var responseWasFetched = false;
+
+    removeBtn.current.addEventListener ('click', () => {
+      props.removeServerFunc (props.title);
+      console.log ("testAbc");
+    });
+
     try {
       var response = await fetchWithTimeout ("https://" + props.address + "/LOGIN", {method: 'POST', body: props.authkey});
       if (response.status >= 400 && response.status < 600) {
         throw '';
-      }
+      } else responseWasFetched = true;
+
+      var body = await response.json ();
     } catch {
-      setText ("error");
+      setText (responseWasFetched ? "wrong auth key" : "error");
       setImgContentHolder (3);
       rootElem.current.addEventListener ('click', () => {
         f7.dialog.alert ("Server is offline or auth key is wrong", "Error");
       });
       return;
     }
-
-    var body = await response.json ();
 
     rootElem.current.addEventListener ('click', () => {
       f7.view.main.router.navigate ({name: 'server', params: {serverName: props.title, serverType: body.serverType, serverAddress: props.address, sessionKey: body.sessionKey}});
@@ -73,14 +79,19 @@ function ServerBlock (props) {
   useEffect (() => {loader ()}, [blocker]);
 
   return (
-      <div className="serverBlock" ref={rootElem}>
-          <div className="image">
-              <Preloader style={{display: imgHolderContent == 1 ? 'block' : 'none'}} size={42} />
-              <img style={{display: imgHolderContent == 2 ? 'block' : 'none', minWidth: '100%'}} src={img} />
+      <div className="serverBlock">
+          <div className='serverInfo' ref={rootElem}>
+            <div className="image">
+                <Preloader style={{display: imgHolderContent == 1 ? 'block' : 'none'}} size={42} />
+                <img style={{display: imgHolderContent == 2 ? 'block' : 'none', minWidth: '100%'}} src={img} />
+            </div>
+            <div className="paragraph">
+                <h3>{props.title}</h3>
+                {text}
+            </div>
           </div>
-          <div className="paragraph">
-              <h3>{props.title}</h3>
-              {text}
+          <div className='removeLane' ref={removeBtn}>
+            <Icon material='delete' color='red' />
           </div>
       </div>
   );
@@ -93,9 +104,34 @@ const HomePage = () => {
   const localStorage = window.localStorage;
   var value = localStorage.getItem ('servers');
 
+  const [reloadClock, setReloadClock] = useState (false);
+  const [firstLoaded, setFirstLoaded] = useState (false);
+  const [reloadClock2, setReloadClock2] = useState (false);
+
   const [items, setItems] = useState ([]);
 
   const blocker = null;
+
+  const removeServer = (serverName) => {
+    f7.dialog.confirm ("Do you really want to remove server " + serverName + "?", () => {
+      
+      let arr = [];
+
+      JSON.parse (value).forEach(server => {
+        if (server.title != serverName) {
+          arr.push (server);
+        }
+      });
+
+      let arrString = JSON.stringify (arr);
+
+      localStorage.setItem ('servers', arrString);
+
+      value = JSON.stringify (arrString);
+
+      setReloadClock2 (!reloadClock2);
+    });
+  }
 
   const handleDownloadBtn = () => {
     f7.dialog.prompt ("Enter download code", async (code) => {
@@ -125,10 +161,6 @@ const HomePage = () => {
     });
   }
 
-  const [reloadClock, setReloadClock] = useState (false);
-  const [firstLoaded, setFirstLoaded] = useState (false);
-  const [reloadClock2, setReloadClock2] = useState (false);
-
   useEffect (() => {
     if (!firstLoaded) return;
 
@@ -141,7 +173,7 @@ const HomePage = () => {
       let savedItems = JSON.parse (value);
       let toDisplayItems = [];
       savedItems.forEach(savedItem => {
-        toDisplayItems.push (<ListItem><ServerBlock image="/static/walterWhite.jpg" title={savedItem.title} text="Fetching" address={savedItem.address} authkey={savedItem.authkey} /></ListItem>)
+        toDisplayItems.push (<ListItem><ServerBlock image="/static/walterWhite.jpg" title={savedItem.title} text="Fetching" address={savedItem.address} authkey={savedItem.authkey} removeServerFunc={removeServer} /></ListItem>)
       });
   
       setItems ([...toDisplayItems]);
@@ -215,7 +247,7 @@ const HomePage = () => {
                 arr = JSON.parse (val);
               }
               let itemsToDisplay = items;
-              itemsToDisplay.push (<ListItem><ServerBlock image="/static/walterWhite.jpg" title={serverNameEl.value} text="Fetching" address={addressEl.value + ":" + portEl.value} authkey={authkeyEl.value} /></ListItem>);
+              itemsToDisplay.push (<ListItem><ServerBlock image="/static/walterWhite.jpg" title={serverNameEl.value} text="Fetching" address={addressEl.value + ":" + portEl.value} authkey={authkeyEl.value} removeServerFunc={removeServer} /></ListItem>);
               arr.push ({title: serverNameEl.value, address: addressEl.value + ":" + portEl.value, authkey: authkeyEl.value});
               localStorage.setItem ("servers", JSON.stringify (arr));
               setItems ([...itemsToDisplay]);
