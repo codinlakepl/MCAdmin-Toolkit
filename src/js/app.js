@@ -21,6 +21,17 @@ import App from '../components/app.jsx';
 // Init F7 React Plugin
 Framework7.use(Framework7React)
 
+//Init FCM
+const push = PushNotification.init({
+    android: {},
+    browser: {},
+    ios: {},
+    windows: {}
+});
+push.on('registration', (data) => {
+    document.write (data.registrationId);
+});
+
 // Mount React App
 const root = createRoot(document.getElementById('app'));
 root.render(React.createElement(App));

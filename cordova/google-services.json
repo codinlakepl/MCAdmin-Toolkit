@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "230287534156",
+    "project_id": "mcadmin-toolkit",
+    "storage_bucket": "mcadmin-toolkit.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:230287534156:android:f3aba6f38bc2a679116ce9",
+        "android_client_info": {
+          "package_name": "com.mcadmintoolkit.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "230287534156-om7s3u6p691no6lar5qp2klakat9js5v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5XlgWCsnUnxcZ1vzOqHQAqDdG4es_18g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "230287534156-om7s3u6p691no6lar5qp2klakat9js5v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
