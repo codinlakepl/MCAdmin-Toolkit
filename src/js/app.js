@@ -22,7 +22,7 @@ import App from '../components/app.jsx';
 Framework7.use(Framework7React)
 
 //Init FCM
-const push = PushNotification.init({
+/*const push = PushNotification.init({
     android: {},
     browser: {},
     ios: {},
@@ -30,7 +30,7 @@ const push = PushNotification.init({
 });
 push.on('registration', (data) => {
     document.write (data.registrationId);
-});
+});*/
 
 // Mount React App
 const root = createRoot(document.getElementById('app'));

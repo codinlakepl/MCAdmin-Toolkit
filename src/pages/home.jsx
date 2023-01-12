@@ -19,6 +19,9 @@ import {
 } from 'framework7-react';
 
 import { fetchWithTimeout } from '../components/fetchWithTimeout.module';
+import { login } from '../components/login';
+
+import config from '../config.json';
 
 function ServerBlock (props) {
 
@@ -103,6 +106,7 @@ const HomePage = () => {
 
   const localStorage = window.localStorage;
   var value = localStorage.getItem ('servers');
+  var loginCredentials = localStorage.getItem ('loginCredentials');
 
   const [reloadClock, setReloadClock] = useState (false);
   const [firstLoaded, setFirstLoaded] = useState (false);
@@ -161,6 +165,14 @@ const HomePage = () => {
     });
   }
 
+  const handleLoginBtn = () => {
+    f7.dialog.login ("Login to console", "Login", async (user, password) => {
+      await login (f7, user, password);
+      loginCredentials = localStorage.getItem ('loginCredentials');
+      setReloadClock2 (!reloadClock2);
+    });
+  }
+
   useEffect (() => {
     if (!firstLoaded) return;
 
@@ -175,9 +187,59 @@ const HomePage = () => {
       savedItems.forEach(savedItem => {
         toDisplayItems.push (<ListItem><ServerBlock image="/static/walterWhite.jpg" title={savedItem.title} text="Fetching" address={savedItem.address} authkey={savedItem.authkey} removeServerFunc={removeServer} /></ListItem>)
       });
-  
-      setItems ([...toDisplayItems]);
-      setFirstLoaded (true);
+
+      const fetchFromConsole = async () => {
+        f7.dialog.preloader ('Fetching servers from console');
+        let result;
+        try {
+          result = await fetchWithTimeout (config.consoleBaseUrl + '/getUserConnections');
+        } catch {
+          f7.dialog.close ();
+          f7.dialog.alert ("Something went wrong", "Error...");
+          setItems ([...toDisplayItems]);
+          setFirstLoaded (true);
+          return;
+        }
+
+        let json;
+        try {
+          json = await result.json ();
+        } catch {
+          f7.dialog.close ();
+          f7.dialog.alert ('Something went wrong', 'Error...');
+          setItems ([...toDisplayItems]);
+          setFirstLoaded (true);
+          return;
+        }
+
+        if (json.error) {
+          f7.dialog.close ();
+          f7.dialog.alert (json.message, 'Error...');
+          setItems ([...toDisplayItems]);
+          setFirstLoaded (true);
+          return;
+        }
+
+        let finalItems = [];
+
+        result.forEach(server => {
+          finalItems.push (<ListItem><ServerBlock image="/static/walterWhite.jpg" title={server.email} text="Fetching" address={server.address + ':' + parseInt (server.port)} authkey={server.authkey} isFromServer={true} /></ListItem>);
+        });
+
+        savedItems.forEach(savedItem => {
+          finalItems.push (savedItem);
+        });
+
+        setItems ([...finalItems]);
+        setFirstLoaded (true);
+      }
+
+      if (loginCredentials != null) {
+        fetchFromConsole ();
+      } else {
+        setItems ([...toDisplayItems]);
+        setFirstLoaded (true);
+      }
     }
   }, [reloadClock]);
 
@@ -208,7 +270,10 @@ const HomePage = () => {
     </Searchbar>
     </div>
 
-    <Button className='reloadBtn' onClick={() => {setReloadClock2 (!reloadClock2)}}><Icon f7='arrow_2_circlepath' /> Reload</Button>
+    <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'end', gap: '10px', marginTop: '30px', marginRight: '15px'}} >
+      <Button className='reloadBtn' onClick={handleLoginBtn}><Icon f7='square_arrow_right' /> Login</Button>
+      <Button className='reloadBtn' onClick={() => {setReloadClock2 (!reloadClock2)}}><Icon f7='arrow_2_circlepath' /> Reload</Button>
+    </div>
 
     <List className='servers'>
       {items}
