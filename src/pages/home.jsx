@@ -19,7 +19,7 @@ import {
 } from 'framework7-react';
 
 import { fetchWithTimeout } from '../components/fetchWithTimeout.module';
-import { login } from '../components/login';
+import { login } from '../components/login.module';
 
 import config from '../config.json';
 
@@ -192,7 +192,9 @@ const HomePage = () => {
         f7.dialog.preloader ('Fetching servers from console');
         let result;
         try {
-          result = await fetchWithTimeout (config.consoleBaseUrl + '/getUserConnections');
+          result = await cordovaFetch (config.consoleBaseUrl + '/getUserConnections', {
+            method: 'GET'
+          });
         } catch {
           f7.dialog.close ();
           f7.dialog.alert ("Something went wrong", "Error...");
@@ -222,13 +224,17 @@ const HomePage = () => {
 
         let finalItems = [];
 
-        result.forEach(server => {
+        console.log (json);
+
+        json.forEach(server => {
           finalItems.push (<ListItem><ServerBlock image="/static/walterWhite.jpg" title={server.email} text="Fetching" address={server.address + ':' + parseInt (server.port)} authkey={server.authkey} isFromServer={true} /></ListItem>);
         });
 
-        savedItems.forEach(savedItem => {
+        toDisplayItems.forEach(savedItem => {
           finalItems.push (savedItem);
         });
+
+        f7.dialog.close ();
 
         setItems ([...finalItems]);
         setFirstLoaded (true);

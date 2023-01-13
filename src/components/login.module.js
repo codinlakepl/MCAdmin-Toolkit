@@ -7,17 +7,16 @@ export async function login (f7, user, password) {
     let result;
 
     try {
-        result = await fetchWithTimeout (config.consoleBaseUrl + '/login', {
+        result = await cordovaFetch (config.consoleBaseUrl + '/login', {
         method: 'POST',
         headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+            'Content-Type': 'application/json'
         },
-        body: JSON.stringify ({email: user, password: password})
+        body: JSON.stringify ({email: user, password: password}),
     });
-    } catch {
+    } catch (e) {
         f7.dialog.close ();
-        f7.dialog.alert ('Something went wrong', 'Error...');
+        f7.dialog.alert (e, 'Error...');
         return;
     }
 
@@ -25,9 +24,9 @@ export async function login (f7, user, password) {
 
     try {
         json = await result.json ();
-    } catch {
+    } catch (e) {
         f7.dialog.close ();
-        f7.dialog.alert ('Something went wrong', 'Error...');
+        f7.dialog.alert (e, 'Error...');
         return;
     }
 
