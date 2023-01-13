@@ -1,5 +1,4 @@
-import config from '../config.json'
-import { fetchWithTimeout } from './fetchWithTimeout.module';
+import config from '../config.json';
 
 export async function login (f7, user, password) {
     f7.dialog.preloader ('Logging in');
@@ -7,17 +6,18 @@ export async function login (f7, user, password) {
     let result;
 
     try {
-        result = await cordovaFetch (config.consoleBaseUrl + '/login', {
+        result = await window.fetch (config.consoleBaseUrl + '/checkUserLogin', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': 'Basic ' + window.btoa (user + ':' + password)
         },
         body: JSON.stringify ({email: user, password: password}),
     });
     } catch (e) {
         f7.dialog.close ();
         f7.dialog.alert (e, 'Error...');
-        return;
+        return false;
     }
 
     let json;
@@ -27,16 +27,22 @@ export async function login (f7, user, password) {
     } catch (e) {
         f7.dialog.close ();
         f7.dialog.alert (e, 'Error...');
-        return;
+        return false;
     }
 
     if (json.error) {
         f7.dialog.close ();
         f7.dialog.alert (json.message, 'Error...');
-        return;
+        return false;
     }
 
-    localStorage.setItem ('loginCredentials', {email: user, password: password});
+    window.localStorage.setItem ('loginCredentials', JSON.stringify ({email: user, password: password}));
+
+    if (window.localStorage.getItem ('servers') == null) {
+        window.localStorage.setItem ('servers', JSON.stringify ([]));
+    }
 
     f7.dialog.close ();
+
+    return true;
 }

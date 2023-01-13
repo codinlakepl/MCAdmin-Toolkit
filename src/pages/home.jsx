@@ -42,10 +42,12 @@ function ServerBlock (props) {
 
     var responseWasFetched = false;
 
-    removeBtn.current.addEventListener ('click', () => {
-      props.removeServerFunc (props.title);
-      console.log ("testAbc");
-    });
+    if (!props.isFromServer) {
+      removeBtn.current.addEventListener ('click', () => {
+        props.removeServerFunc (props.title);
+        console.log ("testAbc");
+      });
+    }
 
     try {
       var response = await fetchWithTimeout ("https://" + props.address + "/LOGIN", {method: 'POST', body: props.authkey});
@@ -64,7 +66,7 @@ function ServerBlock (props) {
     }
 
     rootElem.current.addEventListener ('click', () => {
-      f7.view.main.router.navigate ({name: 'server', params: {serverName: props.title, serverType: body.serverType, serverAddress: props.address, sessionKey: body.sessionKey}});
+      f7.view.main.router.navigate ({name: 'server', params: {serverName: props.title, serverType: body.serverType, serverAddress: props.address, sessionKey: body.sessionKey, isFromServer: props.isFromServer ? 'yes' : 'no'}});
       console.log ("działa");
     });
 
@@ -94,7 +96,7 @@ function ServerBlock (props) {
             </div>
           </div>
           <div className='removeLane' ref={removeBtn}>
-            <Icon material='delete' color='red' />
+            {props.isFromServer ? <div style={{width: '30px', height: '30px'}}><img style={{width: '100%', height: '100%'}} src='/static/DefaultServerIcon.png' /></div> : <Icon material='delete' color='red' />}
           </div>
       </div>
   );
@@ -103,6 +105,7 @@ function ServerBlock (props) {
 const HomePage = () => {
 
   const [loginPopupOpened, setLoginPopupOpened] = useState (false);
+  const [loggedIn, setLoggedIn] = useState (false);
 
   const localStorage = window.localStorage;
   var value = localStorage.getItem ('servers');
@@ -166,11 +169,25 @@ const HomePage = () => {
   }
 
   const handleLoginBtn = () => {
-    f7.dialog.login ("Login to console", "Login", async (user, password) => {
-      await login (f7, user, password);
-      loginCredentials = localStorage.getItem ('loginCredentials');
-      setReloadClock2 (!reloadClock2);
+    f7.dialog.login ("Login to console", "Login", (user, password) => {
+      login (f7, user, password).then (data => {
+        if (data) {
+          loginCredentials = localStorage.getItem ('loginCredentials');
+          value = localStorage.getItem ('servers');
+          if (firstLoaded) {
+            setReloadClock2 (!reloadClock2);
+            return;
+          }
+          setReloadClock (!reloadClock);
+        }
+      });
     });
+  }
+
+  const handleLogOutBtn = () => {
+    localStorage.removeItem ('loginCredentials');
+    loginCredentials = localStorage.getItem ('loginCredentials');
+    setReloadClock2 (!reloadClock2);
   }
 
   useEffect (() => {
@@ -185,15 +202,19 @@ const HomePage = () => {
       let savedItems = JSON.parse (value);
       let toDisplayItems = [];
       savedItems.forEach(savedItem => {
-        toDisplayItems.push (<ListItem><ServerBlock image="/static/walterWhite.jpg" title={savedItem.title} text="Fetching" address={savedItem.address} authkey={savedItem.authkey} removeServerFunc={removeServer} /></ListItem>)
+        toDisplayItems.push (<ListItem><ServerBlock title={savedItem.title} text="Fetching" address={savedItem.address} authkey={savedItem.authkey} removeServerFunc={removeServer}/></ListItem>)
       });
 
       const fetchFromConsole = async () => {
         f7.dialog.preloader ('Fetching servers from console');
+        let accountData = JSON.parse (loginCredentials);
         let result;
         try {
-          result = await cordovaFetch (config.consoleBaseUrl + '/getUserConnections', {
-            method: 'GET'
+          result = await window.fetch (config.consoleBaseUrl + '/getUserConnections', {
+            method: 'GET',
+            headers: {
+              'Authorization': 'Basic ' + window.btoa (accountData.email + ':' + accountData.password)
+            }
           });
         } catch {
           f7.dialog.close ();
@@ -227,7 +248,7 @@ const HomePage = () => {
         console.log (json);
 
         json.forEach(server => {
-          finalItems.push (<ListItem><ServerBlock image="/static/walterWhite.jpg" title={server.email} text="Fetching" address={server.address + ':' + parseInt (server.port)} authkey={server.authkey} isFromServer={true} /></ListItem>);
+          finalItems.push (<ListItem><ServerBlock title={server.email} text="Fetching" address={server.address + ':' + parseInt (server.port)} authkey={server.authkey} isFromServer={true} /></ListItem>);
         });
 
         toDisplayItems.forEach(savedItem => {
@@ -242,9 +263,11 @@ const HomePage = () => {
 
       if (loginCredentials != null) {
         fetchFromConsole ();
+        setLoggedIn (true);
       } else {
         setItems ([...toDisplayItems]);
         setFirstLoaded (true);
+        setLoggedIn (false);
       }
     }
   }, [reloadClock]);
@@ -277,8 +300,12 @@ const HomePage = () => {
     </div>
 
     <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'end', gap: '10px', marginTop: '30px', marginRight: '15px'}} >
-      <Button className='reloadBtn' onClick={handleLoginBtn}><Icon f7='square_arrow_right' /> Login</Button>
-      <Button className='reloadBtn' onClick={() => {setReloadClock2 (!reloadClock2)}}><Icon f7='arrow_2_circlepath' /> Reload</Button>
+      {
+        loggedIn ?
+        <Button className='reloadBtn' onClick={handleLogOutBtn}><Icon f7='square_arrow_left' /> Log out</Button> :
+        <Button className='reloadBtn' onClick={handleLoginBtn}><Icon f7='square_arrow_right' /> Login</Button>
+      }
+        <Button className='reloadBtn' onClick={() => {setReloadClock2 (!reloadClock2)}}><Icon f7='arrow_2_circlepath' /> Reload</Button>
     </div>
 
     <List className='servers'>
