@@ -114,6 +114,7 @@ const HomePage = () => {
   const [reloadClock, setReloadClock] = useState (false);
   const [firstLoaded, setFirstLoaded] = useState (false);
   const [reloadClock2, setReloadClock2] = useState (false);
+  const [registrationId, setRegistrationId] = useState (null);
 
   const [items, setItems] = useState ([]);
 
@@ -251,6 +252,18 @@ const HomePage = () => {
           finalItems.push (<ListItem><ServerBlock title={server.email} text="Fetching" address={server.address + ':' + parseInt (server.port)} authkey={server.authkey} isFromServer={true} /></ListItem>);
         });
 
+        if (registrationId != null) {
+          window.fetch (config.consoleBaseUrl + '/registerFcm', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Basic ' + window.btoa (accountData.email + ':' + accountData.password),
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify ({fcmToken: registrationId})
+          });
+        }
+
         toDisplayItems.forEach(savedItem => {
           finalItems.push (savedItem);
         });
@@ -276,6 +289,32 @@ const HomePage = () => {
     console.log ((window.innerHeight - document.querySelector ('.servers').getBoundingClientRect ().top) + 'px');
     document.querySelector ('.servers').style.height = (window.innerHeight - document.querySelector ('.servers').getBoundingClientRect ().top) + 'px';
     //console.log ((window.innerHeight - document.querySelector ('.servers').offsetHeight) + 'px');
+  }, [blocker]);
+
+  useEffect (() => {
+    const push = PushNotification.init({
+      android: {},
+      browser: {},
+      ios: {},
+      windows: {}
+    });
+    push.on('registration', (data) => {
+        //document.write (data.registrationId);
+        let accountData = JSON.parse (loginCredentials);
+        window.fetch (config.consoleBaseUrl + '/registerFcm', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Basic ' + window.btoa (accountData.email + ':' + accountData.password),
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify ({fcmToken: data.registrationId})
+        });
+        setRegistrationId (data.registrationId);
+    });
+    push.on('error', (e) => {
+      f7.toast.create ({text: e.message}).open ();
+    });
   }, [blocker]);
 
   return (<Page name="home" style={{overflow: 'hidden', maxHeight: '100vh'}} onPageAfterIn={() => {
