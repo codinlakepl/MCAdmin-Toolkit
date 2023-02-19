@@ -114,7 +114,6 @@ const HomePage = () => {
   const [reloadClock, setReloadClock] = useState (false);
   const [firstLoaded, setFirstLoaded] = useState (false);
   const [reloadClock2, setReloadClock2] = useState (false);
-  const [registrationId, setRegistrationId] = useState ("");
 
   const [items, setItems] = useState ([]);
 
@@ -253,7 +252,7 @@ const HomePage = () => {
           finalItems.push (<ListItem><ServerBlock title={server.email} text="Fetching" address={server.address + ':' + parseInt (server.port)} authkey={server.authkey} isFromServer={true} /></ListItem>);
         });
 
-        if (registrationId != "") {
+        if (localStorage.getItem ('fcmToken') != "" || localStorage.getItem ('fcmToken') != null) {
           window.fetch (config.consoleBaseUrl + '/registerFcm', {
             method: 'POST',
             headers: {
@@ -261,7 +260,7 @@ const HomePage = () => {
               'Content-Type': 'application/json',
               'Accept': 'application/json'
             },
-            body: JSON.stringify ({fcmToken: registrationId})
+            body: JSON.stringify ({fcmToken: localStorage.getItem ('fcmToken')})
           });
         }
 
@@ -301,6 +300,7 @@ const HomePage = () => {
       });
       push.on('registration', (data) => {
         //document.write (data.registrationId);
+        localStorage.setItem ('fcmToken', data.registrationId);
         let accountData = JSON.parse (loginCredentials);
         window.fetch (config.consoleBaseUrl + '/registerFcm', {
           method: 'POST',
@@ -311,7 +311,6 @@ const HomePage = () => {
           },
           body: JSON.stringify ({fcmToken: data.registrationId})
         });
-        setRegistrationId (data.registrationId);
       });
       push.on('error', (e) => {
         f7.toast.create ({text: e.message}).open ();
