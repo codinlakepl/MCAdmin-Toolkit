@@ -114,7 +114,7 @@ const HomePage = () => {
   const [reloadClock, setReloadClock] = useState (false);
   const [firstLoaded, setFirstLoaded] = useState (false);
   const [reloadClock2, setReloadClock2] = useState (false);
-  const [registrationId, setRegistrationId] = useState (null);
+  const [registrationId, setRegistrationId] = useState ("");
 
   const [items, setItems] = useState ([]);
 
@@ -170,6 +170,7 @@ const HomePage = () => {
   }
 
   const handleLoginBtn = () => {
+
     f7.dialog.login ("Login to console", "Login", (user, password) => {
       login (f7, user, password).then (data => {
         if (data) {
@@ -252,7 +253,7 @@ const HomePage = () => {
           finalItems.push (<ListItem><ServerBlock title={server.email} text="Fetching" address={server.address + ':' + parseInt (server.port)} authkey={server.authkey} isFromServer={true} /></ListItem>);
         });
 
-        if (registrationId != null) {
+        if (registrationId != "") {
           window.fetch (config.consoleBaseUrl + '/registerFcm', {
             method: 'POST',
             headers: {
@@ -292,13 +293,13 @@ const HomePage = () => {
   }, [blocker]);
 
   useEffect (() => {
-    const push = PushNotification.init({
-      android: {},
-      browser: {},
-      ios: {},
-      windows: {}
-    });
-    push.on('registration', (data) => {
+    document.addEventListener ('deviceready', () => {
+      const push = PushNotification.init({
+        android: {
+          forceShow: true
+        }
+      });
+      push.on('registration', (data) => {
         //document.write (data.registrationId);
         let accountData = JSON.parse (loginCredentials);
         window.fetch (config.consoleBaseUrl + '/registerFcm', {
@@ -311,10 +312,53 @@ const HomePage = () => {
           body: JSON.stringify ({fcmToken: data.registrationId})
         });
         setRegistrationId (data.registrationId);
-    });
-    push.on('error', (e) => {
-      f7.toast.create ({text: e.message}).open ();
-    });
+      });
+      push.on('error', (e) => {
+        f7.toast.create ({text: e.message}).open ();
+      });
+  
+      push.on ('notification', async (data) => {
+        if (data.additionalData.server) {
+          f7.dialog.preloader ("Opening server from notification");
+  
+          let accountData = JSON.parse (loginCredentials);
+  
+          try {
+            let result = await fetchWithTimeout (config.consoleBaseUrl + "/getConnectionFromNotification", {
+              method: 'POST',
+              headers: {
+                'Authorization': 'Basic ' + window.btoa (accountData.email + ':' + accountData.password),
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify ({email: data.additionalData.server})
+            });
+  
+            let json = await result.json ();
+  
+            if (json.length == 0) {
+              f7.dialog.close ();
+              f7.dialog.alert ("Can't open this server", "Error");
+              return;
+            }
+  
+            var response = await fetchWithTimeout ("https://" + json[0].address + ":" + window.parseInt (json[0].port) + "/LOGIN", {method: 'POST', body: json[0].authkey});
+            if (response.status >= 400 && response.status < 600) {
+              throw '';
+            }
+  
+            var body = await response.json ();
+  
+            f7.dialog.close ();
+  
+            f7.view.main.router.navigate ({name: 'server', params: {serverName: json[0].email, serverType: body.serverType, serverAddress: json[0].address + ":" + window.parseInt (json[0].port), sessionKey: body.sessionKey, isFromServer: 'yes'}});
+          } catch (e) {
+            f7.dialog.close ();
+            f7.dialog.alert ("Can't open this server: " + e, "Error");
+          }
+        }
+      });
+    }, false);
   }, [blocker]);
 
   return (<Page name="home" style={{overflow: 'hidden', maxHeight: '100vh'}} onPageAfterIn={() => {
