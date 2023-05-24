@@ -1,4 +1,4 @@
-import { f7, Icon, Navbar, Page } from "framework7-react";
+import { f7, Icon, Navbar, Page, Button } from "framework7-react";
 import React, { useEffect, useRef, useState } from "react";
 
 import { fetchWithTimeout } from "../components/fetchWithTimeout.module";
@@ -6,6 +6,7 @@ import { fetchWithTimeout } from "../components/fetchWithTimeout.module";
 export default function (props) {
 
     const [serverStats, setServerStats] = useState ("loading");
+    const [logs, setLogs] = useState ([]);
     const [fetcherClock, setFectherClock] = useState (false);
     const [fetched, setFetched] = useState (false);
 
@@ -40,9 +41,16 @@ export default function (props) {
                 f7.dialog.alert ("Session has expired", "Error...", () => {f7.view.main.router.back ()});
                 return;
             }
+
+            let jsonLogs = [];
+
+            json.logs.forEach(message => {
+                jsonLogs.push (<span>{message}</span>);
+            });
     
             setFetched (true);
             setServerStats (<span>Cpu load: {json.cpuLoad}<br />Ram usage: {json.ramUsage}<br />Players online: {json.playersOnline}<br />Server type: {props.serverType}</span>);
+            setLogs ([...jsonLogs]);
             if (!fetched) f7.dialog.close ();
             setTimeout (() => {setFectherClock (!fetcherClock)}, 2000);
         }
@@ -62,6 +70,72 @@ export default function (props) {
             f7.view.main.router.navigate ({name: 'whitelistManagement', params: {serverName: props.serverName, serverAddress: props.serverAddress, sessionKey: props.sessionKey}});
         });
     }, [effectBlocker]);
+
+    const logsDownloadHandle = async () => {
+        f7.dialog.preloader ("Downloading logs...");
+
+        let response;
+        let text;
+
+        try {
+            response = await fetchWithTimeout ('https://' + props.serverAddress + '/LOGS', {method: 'POST', body: props.sessionKey});
+        } catch {
+            f7.dialog.close ();
+            f7.dialog.alert ("Something went wrong", "Error...");
+            return;
+        }
+
+        try {
+            text = await response.text ();
+        } catch {
+            f7.dialog.close ();
+            f7.dialog.alert ("Something went wrong", "Error...");
+            return;
+        }
+
+        f7.dialog.close ();
+
+        let blob = new Blob([text], {type: 'text/plain'});
+
+        let size = blob.size;
+        let type = window.TEMPORARY;
+
+        let currDate = new Date ();
+
+        let year = currDate.getFullYear ();
+        let month = (currDate.getMonth () + 1) < 10 ? "0" + (currDate.getMonth () + 1) : (currDate.getMonth () + 1);
+        let day = currDate.getDate () < 10 ? "0" + currDate.getDate () : currDate.getDate ();
+
+        let hour = currDate.getHours () < 10 ? "0" + currDate.getHours () : currDate.getHours ();
+        let minutes = currDate.getMinutes < 10 ? "0" + currDate.getMinutes () : currDate.getMinutes ();
+        let seconds = currDate.getSeconds < 10 ? "0" + currDate.getSeconds () : currDate.getSeconds ();
+
+        let currDateString = `${year}-${month}-${day}_${hour}-${minutes}-${seconds}`;
+
+        let filename = currDateString + '_logs_dump.txt';
+
+        function successCallback (fs) {
+            fs.root.getFile (filename, {create: true, exclusive: false}, function(fileEntry) {
+                fileEntry.createWriter (function (fileWriter) {
+                    fileWriter.onwriteend = function (e) {
+                        window.plugins.socialsharing.share(null, null, fileEntry.nativeURL, null);
+                    }
+
+                    fileWriter.onerror = function (e) {
+                        f7.dialog.alert ("File writing error", "Error...");
+                    }
+
+                    fileWriter.write (blob);
+                });
+            }, () => {f7.dialog.alert ("File saving error", "Error...")});
+        }
+
+        function errorCallback () {
+            f7.dialog.alert ("Requesting filesystem error", "Error...");
+        }
+
+        window.requestFileSystem (type, size, successCallback, errorCallback);
+    }
 
     return (
         <Page name="server">
@@ -83,6 +157,14 @@ export default function (props) {
                         <Icon material="checklist" size={60} />
                     </div>
                 </div>
+            </div>
+
+            <div className="serverLogsBtnWrapper">
+                <Button className='reloadBtn' onClick={logsDownloadHandle}><Icon f7='arrow_down_doc' /> Download all logs</Button>
+            </div>
+
+            <div className="serverLogsContainer">
+                {logs}
             </div>
 
 
