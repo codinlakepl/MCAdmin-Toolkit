@@ -119,6 +119,10 @@ The original setup of this repository is by:
 
 For a full list of all authors and contributors, see [the contributors page](https://github.com/MCAdmin-Toolkit-dev-team/MCAdmin-Toolkit/contributors).
 
+We also want to thank a person, who motivated us to create this whole project:<br />
+[majlenaadrianna (Milena Bilewska)](https://github.com/majlenaadrianna)<br />
+Thank you! Without your help we wouldn't be here
+
 
 ## License
 
