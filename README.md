@@ -1,106 +1,130 @@
-# MCAdmin-Toolkit
+<h1 align="center">
+  <a href="https://github.com/MCAdmin-Toolkit-dev-team/MCAdmin-Toolkit">
+    <img src="docs/images/logo.png" alt="Logo" width="100" height="100">
+  </a>
+</h1>
 
-## Framework7 CLI Options
+<div align="center">
+  MCAdmin-Toolkit
+  <br />
+  <a href="#about"><strong>Explore the screenshots »</strong></a>
+  <br />
+  <br />
+  <a href="https://github.com/MCAdmin-Toolkit-dev-team/MCAdmin-Toolkit/issues/new?assignees=&labels=bug&template=01_BUG_REPORT.md&title=bug%3A+">Report a Bug</a>
+  ·
+  <a href="https://github.com/MCAdmin-Toolkit-dev-team/MCAdmin-Toolkit/issues/new?assignees=&labels=enhancement&template=02_FEATURE_REQUEST.md&title=feat%3A+">Request a Feature</a>
+  .
+  <a href="https://github.com/MCAdmin-Toolkit-dev-team/MCAdmin-Toolkit/issues/new?assignees=&labels=question&template=04_SUPPORT_QUESTION.md&title=support%3A+">Ask a Question</a>
+</div>
 
-Framework7 app created with following options:
+<div align="center">
+<br />
 
-```
-{
-  "cwd": "/home/ipyz/Dokumenty/MCAdmin-Toolkit/android-app",
-  "type": [
-    "cordova"
-  ],
-  "name": "MCAdmin-Toolkit",
-  "framework": "react",
-  "template": "blank",
-  "bundler": "vite",
-  "cssPreProcessor": "less",
-  "theming": {
-    "customColor": true,
-    "color": "#da4167",
-    "darkTheme": true,
-    "iconFonts": true,
-    "fillBars": true
-  },
-  "customBuild": false,
-  "pkg": "com.mcadmintoolkit.app",
-  "cordova": {
-    "folder": "cordova",
-    "platforms": [
-      "android",
-      "electron"
-    ],
-    "plugins": [
-      "cordova-plugin-statusbar",
-      "cordova-plugin-keyboard",
-      "cordova-plugin-splashscreen",
-      "cordova-plugin-file"
-    ]
-  }
-}
-```
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
-## Install Dependencies
-
-First of all we need to install dependencies, run in terminal
-```
-npm install
-```
-
-## NPM Scripts
-
-* 🔥 `start` - run development server
-* 🔧 `dev` - run development server
-* 🔧 `build` - build web app for production
-* 📱 `build-cordova` - build cordova app
-* 📱 `build-cordova-android` - build cordova Android app
-* 📱 `cordova-android` - run dev build cordova Android app
-* 🖥 `build-cordova-electron` - build cordova Electron app
-* 🖥 `cordova-electron` - run dev build cordova Electron app
-
-## Vite
-
-There is a [Vite](https://vitejs.dev) bundler setup. It compiles and bundles all "front-end" resources. You should work only with files located in `/src` folder. Vite config located in `vite.config.js`.
-## Cordova
-
-Cordova project located in `cordova` folder. You shouldn't modify content of `cordova/www` folder. Its content will be correctly generated when you call `npm run cordova-build-prod`.
+</div>
 
 
 
-## Cordova Electron
+---
 
-There is also cordova Electron platform installed. To learn more about it and Electron check this guides:
+## About
 
-* [Cordova Electron Platform Guide](https://cordova.apache.org/docs/en/latest/guide/platforms/electron/index.html)
-* [Official Electron Documentation](https://electronjs.org/docs)
+> MCAdmin-Toolkit is a complete system that allows you to manage players on your Minecraft server from a mobile phone.<br /><br />
+> All you have to do is install our Minecraft bukkit plugin, add ssl certs to it, provide server credentials to this app and you are good to go!<br /><br />
+> Features that our project contain are:
+> 1. Current server status report (CPU usage, RAM usage and players online)
+> 2. Live logs preview
+> 3. Logs dump to file
+> 4. Kicking
+> 5. Baning
+> 6. IP-Banning
+> 7. Unbanning
+> 8. IP-Unbanning
+> 9. Whitelist on/off
+> 10. Whitelist add or remove player
+> 11. Listing online and offline players, banned players and whitelisted players.
+> 
+> All from this app.
+> Bukkit plugin repo: [https://github.com/MCAdmin-Toolkit-dev-team/MCAdmin-Toolkit-plugin](https://github.com/MCAdmin-Toolkit-dev-team/MCAdmin-Toolkit-plugin)
 
-## Assets
+<details>
+<summary>Screenshots</summary>
+<br>
 
-Assets (icons, splash screens) source images located in `assets-src` folder. To generate your own icons and splash screen images, you will need to replace all assets in this directory with your own images (pay attention to image size and format), and run the following command in the project directory:
+|                             Home Screen                                       |                    Login Screen                                                 |                                         Server dashboard                                |                      Players management                                                           |                 Bans management                                     |             Whitelist management                                         |
+| :-------------------------------------------------------------------:         | :--------------------------------------------------------------------:          | :------------------------------------------------------------------------------:        | :-----------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------: | :----------------------------------------------------------------------: |
+| <img src="docs/images/screenshots/home.jpg" title="Home Screen" width="100%"> | <img src="docs/images/screenshots/login.png" title="Login Screen" width="100%"> | <img src="docs/images/screenshots/dashboard.jpg" title="Server dashboard" width="100%"> | <img src="docs/images/screenshots/playersManagement.jpg" title="Players management" width="100%"> | <img src="docs/images/screenshots/bansManagement.jpg" width="100%"> | <img src="docs/images/screenshots/whitelistManagement.jpg" width="100%"> |
 
-```
-framework7 assets
-```
+</details>
 
-Or launch UI where you will be able to change icons and splash screens:
+### Built With
 
-```
-framework7 assets --ui
-```
+> To build this app, we used:
+> - Framework7
+> - ReactJS
+> 
+> Those were main tools/libraries that we used to crate this app.
+
+## Getting Started
+
+### Prerequisites
+
+> First of all you have to setup our plugin. You can read about setup of it here: [https://github.com/MCAdmin-Toolkit-dev-team/MCAdmin-Toolkit-plugin](https://github.com/MCAdmin-Toolkit-dev-team/MCAdmin-Toolkit-plugin)
+> Then allow your file manager to install apps and run the apk file
+
+### Installation
+
+> First download the app. You can do it here: [https://github.com/MCAdmin-Toolkit-dev-team/MCAdmin-Toolkit/releases](https://github.com/MCAdmin-Toolkit-dev-team/MCAdmin-Toolkit/releases) <br />
+> Then allow your file manager to install apps and then run the apk file
+
+## Usage
+
+You can read about usage [here](docs/USAGE.md)
+
+## Roadmap
+
+We want to implement new things to our system. Here's what we plan for closest future:
+- Configurable security levels
+- Move from java-express to gRPC (or other technology)
+- Implement in-app permission management based on Luckperms API
+
+## Support
+
+> Working on this
+
+Reach out to the maintainer at one of the following places:
+
+- Github:
+  - [IpyZ](https://github.com/IpyZ)
+  - [Diratix](https://github.com/Diratix)
+
+- Discord:
+  - Diratix#6897
+  - IpyZ#0639
+  - Still working on official discord server
+
+## Contributing
+
+First off, thanks for taking the time to contribute! Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make will benefit everybody else and are **greatly appreciated**.
 
 
+Please read [our contribution guidelines](docs/CONTRIBUTING.md), and thank you for being involved!
 
-## Documentation & Resources
+## Authors & contributors
 
-* [Framework7 Core Documentation](https://framework7.io/docs/)
+The original setup of this repository is by:
+- [IpyZ (Filip Śliwa)](https://github.com/IpyZ)
+- [Diratix (Daniel Pawelec)](https://github.com/Diratix)
 
-* [Framework7 React Documentation](https://framework7.io/react/)
+For a full list of all authors and contributors, see [the contributors page](https://github.com/MCAdmin-Toolkit-dev-team/MCAdmin-Toolkit/contributors).
 
-* [Framework7 Icons Reference](https://framework7.io/icons/)
-* [Community Forum](https://forum.framework7.io)
 
-## Support Framework7
+## License
 
-Love Framework7? Support project by donating or pledging on:
-- Patreon: https://patreon.com/framework7
-- OpenCollective: https://opencollective.com/framework7
+This project is licensed under the **GNU General Public License v3**.
+
+See [LICENSE](LICENSE) for more information.
+
+## About a readme
+This readme was created with this template: [https://github.com/dec0dOS/amazing-github-template#readme](https://github.com/dec0dOS/amazing-github-template#readme)
